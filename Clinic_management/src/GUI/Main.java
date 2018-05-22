@@ -1,13 +1,11 @@
 package GUI;
 
-import Utils.Helper;
-import Utils.$;
-import View.MainContent;
-import View.MainHeader;
+import util.Helper;
+import util.$;
+import view.MainContent;
+import view.MainHeader;
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.io.IOException;
-import java.text.ParseException;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.SwingUtilities;
@@ -50,25 +48,25 @@ public class Main extends JFrame {
     public void initMain(){
         switch($.typeUser){
             case "doctor":
-                Helper.setCard($.pnlContent, new View.Content.DoctorMain());
-                Helper.setCard($.pnlHeader, new View.Header.Member());
+                Helper.setCard($.pnlContent, new view.contents.DoctorMain());
+                Helper.setCard($.pnlHeader, new view.header.Member());
                 break;
             case "receptionist":
-                Helper.setCard($.pnlContent, new View.Content.ReceptionistMain());
-                Helper.setCard($.pnlHeader, new View.Header.Member());
+                Helper.setCard($.pnlContent, new view.contents.ReceptionistMain());
+                Helper.setCard($.pnlHeader, new view.header.Member());
                 break;
             case "accountant":
-                Helper.setCard($.pnlContent, new View.Content.AccountantMain());
-                Helper.setCard($.pnlHeader, new View.Header.Member());
+                Helper.setCard($.pnlContent, new view.contents.AccountantMain());
+                Helper.setCard($.pnlHeader, new view.header.Member());
                 break;
             case "visitor": default:
-                Helper.setCard($.pnlContent, new View.Content.Login.VisitorMain());
-                Helper.setCard($.pnlHeader, new View.Header.Visitor());
+                Helper.setCard($.pnlContent, new view.contents.login.VisitorMain());
+                Helper.setCard($.pnlHeader, new view.header.Visitor());
                 break;
         }
     }
     
-    public static void main(String args[]) throws IOException, ParseException {
+    public static void main(String args[]) {
         SwingUtilities.invokeLater(() -> {
             $.main = new Main();
         });

@@ -1,7 +1,7 @@
 package repository;
 
+import util.Helper;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.sql.Connection;
@@ -22,32 +22,32 @@ import java.util.logging.Logger;
  * @author ledin
  */
 public class MysqlDBDeploy implements IDB {
+
     private Connection conn = null;
-    
-    /**
-     *
-     * @return
-     */
+
     @Override
     public boolean openConnection() {
-        Properties props = new Properties();
-        // đọc thông tin database trong file và kết nối
         try {
-            props.load(new FileInputStream("data/database/jdbc.properties"));
-            Class.forName(props.getProperty("driver"));
-            this.conn = DriverManager.getConnection(
-                    props.getProperty("url"),
-                    props.getProperty("username"),
-                    props.getProperty("password"));
-            return true;
-        } catch(ClassNotFoundException | SQLException | FileNotFoundException e) {
-            e.printStackTrace(System.out);
-        } catch (IOException ex) {
+            if (this.conn == null) {
+                Properties props = new Properties();
+                // đọc thông tin database trong file và kết nối
+                props.load(new FileInputStream("data/database/jdbc.properties"));
+                Class.forName(props.getProperty("driver"));
+                this.conn = DriverManager.getConnection(
+                        props.getProperty("url"),
+                        props.getProperty("username"),
+                        props.getProperty("password"));
+                return true;
+            }
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MysqlDBDeploy.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+            Helper.dlgNotice("Lỗi kết nối", "Không thể kết nối tới cơ sở dữ liệu!");
         }
         return false;
     }
-	
+
     // Tự động set Type cho các object dữ liệu
     // Phục vụ cho prepared statement
     private void autoSetTypeObjectsArgs(PreparedStatement pstmt, List<Object> args) throws SQLException {
@@ -57,170 +57,149 @@ public class MysqlDBDeploy implements IDB {
         long valueNullLong = -1;
         double valueNullDouble = -1.0D;
         float valueNullFloat = -1.0F;
-        
+
         int i = 1;
-        
+
         for (Object arg : args) {
             // với dạng số, coi -1 là null, 0 vẫn là 0
             if (arg instanceof Date) {
                 // coi Date(0) == null date
-                if (arg.equals(valueNullDate))
+                if (arg.equals(valueNullDate)) {
                     pstmt.setNull(i++, Types.TIME);
-                else
+                } else {
                     pstmt.setTimestamp(i++, new Timestamp(((Date) arg).getTime()));
+                }
             } else if (arg instanceof Short) {
-                if (arg.equals(valueNullShort))
+                if (arg.equals(valueNullShort)) {
                     pstmt.setNull(i++, Types.SMALLINT);
-                else
+                } else {
                     pstmt.setInt(i++, (Short) arg);
+                }
             } else if (arg instanceof Integer) {
-                if (arg.equals(valueNullInteger))
+                if (arg.equals(valueNullInteger)) {
                     pstmt.setNull(i++, Types.INTEGER);
-                else
+                } else {
                     pstmt.setInt(i++, (Integer) arg);
+                }
             } else if (arg instanceof Long) {
-                if (arg.equals(valueNullLong))
+                if (arg.equals(valueNullLong)) {
                     pstmt.setNull(i++, Types.BIGINT);
-                else
+                } else {
                     pstmt.setLong(i++, (Long) arg);
+                }
             } else if (arg instanceof Double) {
-                if (arg.equals(valueNullDouble))
+                if (arg.equals(valueNullDouble)) {
                     pstmt.setNull(i++, Types.DOUBLE);
-                else
+                } else {
                     pstmt.setDouble(i++, (Double) arg);
+                }
             } else if (arg instanceof Float) {
-                if (arg.equals(valueNullFloat))
+                if (arg.equals(valueNullFloat)) {
                     pstmt.setNull(i++, Types.FLOAT);
-                else
+                } else {
                     pstmt.setFloat(i++, (Float) arg);
+                }
             } else {
-                if (arg == null)
+                if (arg == null) {
                     pstmt.setNull(i++, Types.VARCHAR);
-                else
+                } else {
                     pstmt.setString(i++, (String) arg);
+                }
             }
         }
     }
-    
+
     // dùng cho các câu query lấy dữ liệu
     // trả dữ liệu về dưới dạng ResultSet là tập dữ liệu cần query
-    /**
-     *
-     * @param sql
-     * @return
-     * @throws Exception
-     */
     @Override
     public ResultSet execQuery(String sql) {
         PreparedStatement pstmt;
         ResultSet res = null;
         try {
-            if(conn == null) throw new Exception("Không kết nối được với cơ sở dữ liệu!");
+            if (conn == null) {
+                throw new SQLException("Không kết nối được với cơ sở dữ liệu!");
+            }
             pstmt = conn.prepareStatement(sql);
             res = pstmt.executeQuery();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             System.err.println(sql);    // print sql query để debug
             e.printStackTrace(System.out);
-        } catch (Exception ex) {
-            Logger.getLogger(MysqlDBDeploy.class.getName()).log(Level.SEVERE, null, ex);
         }
         return res;
     }
 
     // dùng cho các lệnh INSERT, DELETE, UPDATE
     // trả về trạng thái true khi ok hoặc false khi error
-    /**
-     *
-     * @param sql
-     * @param args
-     * @return
-     * @throws Exception
-     */
     @Override
     public boolean execUpdate(String sql, List<Object> args) {
         PreparedStatement pstmt = null;
         try {
-            if(conn == null) throw new Exception("Không kết nối được với cơ sở dữ liệu!");
+            if (conn == null) {
+                throw new SQLException("Không kết nối được với cơ sở dữ liệu!");
+            }
             pstmt = conn.prepareStatement(sql);
             autoSetTypeObjectsArgs(pstmt, args);
             int affectedRows = pstmt.executeUpdate();   // return 0 hoặc số rows updated!
-            if(affectedRows != 0) return true;
-        } catch(SQLException e) {
+            if (affectedRows != 0) {
+                return true;
+            }
+        } catch (SQLException e) {
             System.err.println(sql);    // print sql query để debug
             e.printStackTrace(System.out);
-        } catch (Exception ex) {
-            Logger.getLogger(MysqlDBDeploy.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
-    
+
     // được gọi ngay trước khi đối tượng MysqlDBDeploy bị hủy bởi Garbage Collector
     @Override
     protected void finalize() throws Throwable {
         try {
-            if(conn != null) conn.close();
-        } catch(SQLException e) {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
             e.printStackTrace(System.out);
         } finally {
             super.finalize();
         }
     }
-    
-    // close resultSet
 
-    /**
-     *
-     * @param rst
-     * @throws Exception
-     */
+    // close resultSet
     public void close(ResultSet rst) throws Exception {
         try {
             try (Statement stmt = rst.getStatement()) {
                 rst.close();
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace(System.out);
         }
     }
-	
-    // close statement
 
-    /**
-     *
-     * @param stmt
-     * @throws Exception
-     */
+    // close statement
     public void close(Statement stmt) throws Exception {
         try {
             stmt.close();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace(System.out);
         }
     }
-	
-    // close connect
 
-    /**
-     *
-     * @throws SQLException
-     * @throws Exception
-     */
+    // close connect
     public void close() {
-        if(conn != null){
-            try {
+        try {
+            if (!conn.getAutoCommit()) {
+                return;
+            }
+            if (conn != null) {
                 conn.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(MysqlDBDeploy.class.getName()).log(Level.SEVERE, null, ex);
             }
             conn = null;
+        } catch (SQLException ex) {
+            Logger.getLogger(MysqlDBDeploy.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    /**
-     *
-     * @return
-     */
-    public Connection getConn(){
+    public Connection getConn() {
         return conn;
     }
 }

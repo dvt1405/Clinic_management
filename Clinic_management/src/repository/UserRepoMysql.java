@@ -218,7 +218,6 @@ public class UserRepoMysql implements IRepo {
         try {
             this.db.openConnection();
             String sql = "SELECT * FROM tblUser WHERE "+ condt;    // điều kiện truy vấn
-            
             ResultSet result = this.db.execQuery(sql);
             if(result != null){
                 res = new ArrayList<>();

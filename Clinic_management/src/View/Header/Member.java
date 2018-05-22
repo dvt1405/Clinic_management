@@ -1,7 +1,7 @@
-package View.Header;
+package view.header;
 
-import Utils.$;
-import Utils.Helper;
+import util.$;
+import util.Helper;
 import dao.UserDAO;
 import entity.User;
 import java.awt.Color;

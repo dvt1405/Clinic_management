@@ -1,8 +1,8 @@
-package View;
+package view;
 
-import Utils.$;
-import Utils.Helper;
-import Utils.JLinkButton;
+import util.$;
+import util.Helper;
+import util.JLinkButton;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -19,7 +19,7 @@ public class BreakCums extends JPanel {
     private void initBtnBack(){
         Helper.setBorderBtn(btnBack);
         btnBack.addActionListener((ActionEvent ae) -> {
-            Helper.popCard($.pnlContent);
+            Helper.popBreakCum();
         });
         add(btnBack);
     }

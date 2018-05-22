@@ -1,6 +1,6 @@
-package View.Header;
+package view.header;
 
-import Utils.$;
+import util.$;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

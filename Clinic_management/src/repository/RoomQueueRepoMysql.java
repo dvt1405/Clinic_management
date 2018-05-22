@@ -25,7 +25,7 @@ public class RoomQueueRepoMysql implements IRepo {
             this.db.openConnection();
             String sql = null;
             List<Object> lsParams = new ArrayList<>();
-             
+            
             sql = "INSERT INTO tblRoomQueue ("
                     + "registerTime,"
                     + "tblRoomId,"
@@ -55,8 +55,8 @@ public class RoomQueueRepoMysql implements IRepo {
             
             sql = "INSERT INTO tblRoomQueue ("
                     + "registerTime,"
-                    + "tblRoomId,"
-                    + "tblPatientId"
+                    + "tblRoomId"
+                    + "tblPatientId,"
                     + ") VALUES ";
             for(RoomQueue instance : instances){
                 sql = sql.concat("(?,?,?),");
@@ -112,7 +112,7 @@ public class RoomQueueRepoMysql implements IRepo {
             sql = "INSERT INTO tblRoomQueue ("
                     + "id,"
                     + "registerTime,"
-                    + "tblRoomId,"
+                    + "tblRoomId"
                     + "tblPatientId,"
                     + ") VALUES ";
             for(RoomQueue instance : instances){

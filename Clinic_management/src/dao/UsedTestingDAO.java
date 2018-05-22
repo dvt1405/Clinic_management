@@ -1,7 +1,10 @@
 package dao;
 
+import entity.UsedTesting;
 import entity.iEntity;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import repository.UsedTestingRepoMysql;
 import repository.IRepo;
@@ -78,5 +81,38 @@ public class UsedTestingDAO implements IDAO {
     @Override
     public ResultSet queryDB(String sql) {
         return this.repo.getDB().execQuery(sql);
+    }
+    
+    public List<iEntity> findByPatientProfileIdAndRoomId(int patientProfileId, int roomId) {
+        List<iEntity> res = null;
+        try {
+            this.repo.getDB().openConnection();
+            String sql = String.format("SELECT * FROM tblUsedTesting ut JOIN tblTestingData td ON ut.tblTestingDataId = td.id WHERE td.testingRoomId = %d AND ut.tblPatientProfileId = %d",
+                        roomId,
+                        patientProfileId
+                    );
+            PreparedStatement pstn = this.repo.getDB().getConn().prepareStatement(sql);
+            
+            ResultSet result = pstn.executeQuery();
+            if(result != null){
+                res = new ArrayList<>();
+                while(result.next()){
+                    UsedTesting instance = new UsedTesting();
+                    instance.setId(result.getInt("id"));
+                    instance.setQuantity(result.getInt("quantity"));
+                    instance.setAmount(result.getFloat("amount"));
+                    instance.setTblTestingDataId(result.getInt("tblTestingDataId"));
+                    instance.setTblPatientProfileId(result.getInt("tblPatientProfileId"));
+                    instance.setIsPaid(result.getInt("isPaid"));
+                    instance.setTestResults(result.getString("testResults"));
+                    res.add(instance);
+                }
+            }
+            //this.repo.getDB().close(result);
+            this.repo.getDB().close();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return res;
     }
 }

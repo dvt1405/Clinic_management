@@ -1,7 +1,7 @@
 package dao;
 
-import Utils.$;
-import Utils.Helper;
+import util.$;
+import util.Helper;
 import entity.User;
 import entity.iEntity;
 import java.sql.ResultSet;
@@ -97,5 +97,9 @@ public class UserDAO implements IDAO {
     @Override
     public ResultSet queryDB(String sql) {
         return this.repo.getDB().execQuery(sql);
+    }
+    
+    public List<iEntity> searchDemo(){
+        return this.repo.select("username = 'Chien';");
     }
 }

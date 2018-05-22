@@ -1,6 +1,6 @@
-package View;
+package view;
 
-import Utils.$;
+import util.$;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import javax.swing.JPanel;
